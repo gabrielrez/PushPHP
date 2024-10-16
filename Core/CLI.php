@@ -56,8 +56,9 @@ class CLI
 
     private function createModel($name)
     {
+        $table_name = strtolower($name) . 's';
         $path = "app/Models/{$name}.php";
-        $template = "<?php\n\nnamespace App\Models;\n\nuse Core\Model;\n\nclass {$name} extends Model\n{\n    protected \$table;\n}\n";
+        $template = "<?php\n\nnamespace App\Models;\n\nuse Core\Model;\n\nclass {$name} extends Model\n{\n    protected \$table = '{$table_name}';\n}\n";
 
         if (file_exists($path)) {
             $this->printLine("\033[1;33mO model {$name} already exists.\033[0m");

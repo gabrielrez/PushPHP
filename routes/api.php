@@ -6,15 +6,12 @@ use Core\Response;
 /* ~~~ Application Routes 🚦 ~~~  */
 
 Router::get('/', function () {
-    $json = [
+    $data = [
         'Push' => 'Wellcome to PushPHP :)',
         'Documentation' => 'https://github.com/gabrielrez/PushPHP'
     ];
 
-    (new Response())
-        ->setStatusCode(200)
-        ->json($json)
-        ->send();
+    return response(200, $data);
 });
 
 // Return all kittens 🐱

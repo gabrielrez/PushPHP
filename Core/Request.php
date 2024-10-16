@@ -13,6 +13,10 @@ class Request
      */
     public function getBody(): ?array
     {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
+            return $_POST;
+        }
+
         $body = file_get_contents('php://input');
         if ($body) {
             $decoded = json_decode($body, true);

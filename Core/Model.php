@@ -11,6 +11,9 @@ abstract class Model extends Database
     public function __construct()
     {
         parent::__construct();
+        if (!$this->table) {
+            throw new \Exception("Table name must be set in the model.");
+        }
     }
 
     /**
@@ -20,8 +23,12 @@ abstract class Model extends Database
      */
     public function all()
     {
-        $sql = "SELECT * FROM {$this->table}";
-        return $this->query($sql);
+        try {
+            $sql = "SELECT * FROM {$this->table}";
+            return $this->query($sql);
+        } catch (\PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
     }
 
     /**
@@ -44,9 +51,13 @@ abstract class Model extends Database
      */
     public function findBy(string $column, $value)
     {
-        $sql = "SELECT * FROM {$this->table} WHERE {$column} = :value LIMIT 1";
-        $result = $this->query($sql, ['value' => $value]);
-        return $result ? $result[0] : null;
+        try {
+            $sql = "SELECT * FROM {$this->table} WHERE {$column} = :value LIMIT 1";
+            $result = $this->query($sql, ['value' => $value]);
+            return $result ? $result[0] : null;
+        } catch (\PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
     }
 
     /**
@@ -57,11 +68,17 @@ abstract class Model extends Database
      */
     public function save(array $data)
     {
-        $columns = implode(', ', array_keys($data));
-        $placeholders = implode(', ', array_map(fn($col) => ":$col", array_keys($data)));
+        try {
+            $columns = implode(', ', array_keys($data));
+            $placeholders = implode(', ', array_map(fn($col) => ":$col", array_keys($data)));
 
-        $sql = "INSERT INTO {$this->table} ($columns) VALUES ($placeholders)";
-        return $this->query($sql, $data);
+            $sql = "INSERT INTO {$this->table} ($columns) VALUES ($placeholders)";
+            $this->query($sql, $data);
+
+            return true;
+        } catch (\PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
     }
 
     /**
@@ -75,11 +92,17 @@ abstract class Model extends Database
     {
         unset($data['id']);
 
-        $columns = implode(', ', array_map(fn($col) => "$col = :$col", array_keys($data)));
-        $sql = "UPDATE {$this->table} SET $columns WHERE id = :id";
+        try {
+            $columns = implode(', ', array_map(fn($col) => "$col = :$col", array_keys($data)));
+            $sql = "UPDATE {$this->table} SET $columns WHERE id = :id";
 
-        $data['id'] = $id;
-        return $this->query($sql, $data);
+            $data['id'] = $id;
+            $this->query($sql, $data);
+
+            return true;
+        } catch (\PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
     }
 
     /**
@@ -90,7 +113,13 @@ abstract class Model extends Database
      */
     public function delete(int $id)
     {
-        $sql = "DELETE FROM {$this->table} WHERE id = :id";
-        return $this->query($sql, ['id' => $id]);
+        try {
+            $sql = "DELETE FROM {$this->table} WHERE id = :id";
+            $this->query($sql, ['id' => $id]);
+
+            return true;
+        } catch (\PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
     }
 }

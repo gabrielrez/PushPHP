@@ -18,6 +18,9 @@ class Response
      */
     public function setStatusCode(int $code): self
     {
+        if ($code < 100 || $code > 599) {
+            throw new \InvalidArgumentException("Invalid HTTP status code.");
+        }
         $this->statusCode = $code;
         return $this;
     }
@@ -31,6 +34,9 @@ class Response
      */
     public function addHeader(string $header, string $value): self
     {
+        if (isset($this->headers[$header])) {
+            throw new \InvalidArgumentException("Header already exists: $header");
+        }
         $this->headers[$header] = $header . ': ' . $value;
         return $this;
     }
@@ -44,7 +50,13 @@ class Response
     public function json(array $data): self
     {
         $this->addHeader('Content-Type', 'application/json');
-        $this->body = json_encode($data);
+        $json = json_encode($data);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('JSON encoding error: ' . json_last_error_msg());
+        }
+        
+        $this->body = $json;
         return $this;
     }
 

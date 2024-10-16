@@ -14,4 +14,13 @@ function dd(...$stuff)
         var_dump($item);
         echo "</pre>";
     }
+    die;
+}
+
+function response(?int $statusCode = null, ?array $data = null)
+{
+    return (new Core\Response())
+        ->setStatusCode($statusCode)
+        ->json($data)
+        ->send();
 }
