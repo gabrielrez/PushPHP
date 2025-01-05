@@ -39,6 +39,7 @@ abstract class Database
             try {
                 self::$conn = new PDO($dsn, $username, $password);
                 self::$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                self::$conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             } catch (PDOException $e) {
                 throw new PDOException("Database connection failed: " . $e->getMessage());
             }
@@ -56,8 +57,13 @@ abstract class Database
      */
     public function query(string $sql, array $params = [])
     {
-        $stmt = self::$conn->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $stmt = self::$conn->prepare($sql);
+            $stmt->execute($params);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new PDOException("Query execution failed: " . $e->getMessage());
+        }
     }
 }
