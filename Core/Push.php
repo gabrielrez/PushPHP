@@ -13,7 +13,7 @@ class Push
      * @throws Exception If the PHP version is less than 8.0.0.
      */
     public static function start(){
-        if( PHP_VERSION < '8.0.0'){
+        if(PHP_VERSION < '8.0.0'){
             die('You need to use PHP version 8.0.0 or higher');
         }
         

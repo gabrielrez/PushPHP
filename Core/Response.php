@@ -6,23 +6,19 @@ namespace Core;
 
 class Response
 {
-    protected int $statusCode = 200;
-    protected array $headers = [];
-    protected $body;
+    protected static int $status_code = 200;
+    protected static array $headers = [];
+    protected static $body;
 
     /**
      * Sets the HTTP status code for the response.
      *
-     * @param int $code The HTTP status code to set.
-     * @return self Returns the current instance for method chaining.
+     * @param int $statusCode The HTTP status code to set.
+     * @return void
      */
-    public function setStatusCode(int $code): self
+    public static function setStatusCode(int $statusCode): void
     {
-        if ($code < 100 || $code > 599) {
-            throw new \InvalidArgumentException("Invalid HTTP status code.");
-        }
-        $this->statusCode = $code;
-        return $this;
+        self::$status_code = $statusCode;
     }
 
     /**
@@ -30,51 +26,54 @@ class Response
      *
      * @param string $header The name of the header.
      * @param string $value The value of the header.
-     * @return self Returns the current instance for method chaining.
+     * @return void
      */
-    public function addHeader(string $header, string $value): self
+    public static function addHeader(string $header, string $value): void
     {
-        if (isset($this->headers[$header])) {
-            throw new \InvalidArgumentException("Header already exists: $header");
-        }
-        $this->headers[$header] = $header . ': ' . $value;
-        return $this;
+        self::$headers[$header] = $value;
     }
 
     /**
-     * Sets the response body as JSON encoded data.
+     * Sets the body content of the response.
      *
-     * @param array $data The data to be encoded as JSON.
-     * @return self Returns the current instance for method chaining.
+     * @param string $body The content to be included in the response body.
+     * @return void
      */
-    public function json(array $data): self
+    public static function body(string $body): void
     {
-        $this->addHeader('Content-Type', 'application/json');
-        $json = json_encode($data);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('JSON encoding error: ' . json_last_error_msg());
-        }
-        
-        $this->body = $json;
-        return $this;
+        self::$body = $body;
     }
 
     /**
-     * Sends the response to the client.
+     * Sends the response with the current status code, headers, and body content.
      *
-     * Sets the HTTP status code, adds headers, and outputs the body content.
+     * @return void
      */
-    public function send(): void
+    public static function send(): void
     {
-        http_response_code($this->statusCode);
+        http_response_code(self::$status_code);
 
-        foreach ($this->headers as $header) {
-            header($header);
+        foreach (self::$headers as $header => $value) {
+            header("{$header}: {$value}");
         }
 
-        if ($this->body !== null) {
-            echo $this->body;
-        }
+        echo self::$body;
+    }
+
+    /**
+     * Sends a JSON response with the provided status code and data.
+     * Sets the Content-Type header to 'application/json' and sends the
+     * JSON-encoded data in the response body.
+     *
+     * @param array $data The data to be returned in JSON format.
+     * @param int $status_code The HTTP status code for the response (default is 200).
+     * @return void
+     */
+    public static function json(array $data, int $status_code = 200): void
+    {
+        self::setStatusCode($status_code);
+        self::addHeader('Content-Type', 'application/json');
+        self::body(json_encode($data));
+        self::send();
     }
 }

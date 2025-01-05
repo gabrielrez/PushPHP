@@ -6,13 +6,22 @@ use Core\Database;
 
 abstract class Model extends Database
 {
-    protected $table;
+    protected string $table;
+    protected static array $allowed_fields;
 
     public function __construct()
     {
         parent::__construct();
-        if (!$this->table) {
-            throw new \Exception("Table name must be set in the model.");
+
+        if (!$this->table || !ctype_alnum(str_replace(['_', '-'], '', $this->table))) {
+            throw new \Exception("Invalid table name.");
+        }
+    }
+
+    private function validateColumn(string $column)
+    {
+        if (!in_array($column, self::$allowed_fields, true)) {
+            throw new \Exception("Invalid column: $column.");
         }
     }
 
@@ -37,9 +46,27 @@ abstract class Model extends Database
      * @param int $id The ID of the record.
      * @return array|null The record as an associative array, or null if not found.
      */
-    public function find(int $id)
+    public function find(int $id): array|null
     {
         return $this->findBy('id', $id);
+    }
+
+    /**
+     * Find a record by its ID or throw an exception if not found.
+     *
+     * @param int $id The ID of the record.
+     * @return array The record as an associative array.
+     * @throws \Exception If the record with the given ID is not found.
+     */
+    public function findOrFail(int $id)
+    {
+        $record = $this->find($id);
+
+        if ($record === null) {
+            throw new \Exception("Record with ID $id not found.");
+        }
+
+        return $record;
     }
 
     /**
@@ -51,10 +78,26 @@ abstract class Model extends Database
      */
     public function findBy(string $column, $value)
     {
+        $this->validateColumn($column);
+
         try {
             $sql = "SELECT * FROM {$this->table} WHERE {$column} = :value LIMIT 1";
             $result = $this->query($sql, ['value' => $value]);
             return $result ? $result[0] : null;
+        } catch (\PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Retrieve the first record from the table.
+     *
+     * @return array|null The first record as an associative array, or null if no record exists.
+     */
+    public function first()
+    {
+        try {
+            return $this->query("SELECT * FROM {$this->table} LIMIT 1")[0] ?? null;
         } catch (\PDOException $e) {
             return ['error' => $e->getMessage()];
         }
@@ -91,6 +134,10 @@ abstract class Model extends Database
     public function update(int $id, array $data)
     {
         unset($data['id']);
+
+        foreach (array_keys($data) as $column) {
+            $this->validateColumn($column);
+        }
 
         try {
             $columns = implode(', ', array_map(fn($col) => "$col = :$col", array_keys($data)));

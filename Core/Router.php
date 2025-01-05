@@ -7,7 +7,6 @@ use Core\Response;
 class Router
 {
     private static array $routes = [];
-    private array $middlewares = [];
 
     public static function get(string $path, callable|string $handler): self
     {
@@ -32,26 +31,15 @@ class Router
     private static function addRoute(string $method, string $path, callable|string $handler): self
     {
         $path = preg_replace('/{([^}]+)}/', '(?P<$1>[^/]+)', $path);
+
         $route = new self();
-        self::$routes[] = ['method' => $method, 'path' => $path, 'handler' => $handler, 'middlewares' => &$route->middlewares];
+        self::$routes[] = [
+            'method' => $method,
+            'path' => $path,
+            'handler' => $handler
+        ];
+
         return $route;
-    }
-
-    public function addMiddleware(string $middlewareClass): self
-    {
-        $this->middlewares[] = $middlewareClass;
-        return $this;
-    }
-
-    public function __call($name, $arguments)
-    {
-        $middlewareClass = 'App\\Middlewares\\' . $name;
-
-        if (class_exists($middlewareClass)) {
-            return $this->addMiddleware($middlewareClass);
-        }
-
-        throw new \Exception("Middleware {$name} not found.");
     }
 
     public static function run()
@@ -62,16 +50,16 @@ class Router
         foreach (self::$routes as $route) {
             if ($route['method'] === $method && preg_match('#^' . $route['path'] . '$#', $path, $matches)) {
                 $handler = $route['handler'];
-                $middlewares = $route['middlewares'];
 
-                // Process middlewares
                 $next = function () use ($handler, $matches) {
                     if (is_string($handler)) {
                         list($controller, $action) = explode('::', $handler);
+
                         $controllerClass = 'App\\Controllers\\' . $controller;
 
                         if (class_exists($controllerClass)) {
                             $controllerInstance = new $controllerClass();
+
                             if (method_exists($controllerInstance, $action)) {
                                 return call_user_func_array([$controllerInstance, $action], array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY));
                             } else {
@@ -85,13 +73,6 @@ class Router
                     }
                 };
 
-                foreach (array_reverse($middlewares) as $middlewareClass) {
-                    $next = function () use ($middlewareClass, $next) {
-                        $middleware = new $middlewareClass();
-                        return $middleware->handle($next);
-                    };
-                }
-
                 return $next();
             }
         }
@@ -99,11 +80,11 @@ class Router
         self::handleError(404, 'Route Not Found');
     }
 
-    public static function handleError($code, $message)
+    public static function handleError($status_code, $message)
     {
-        (new Response())
-            ->setStatusCode($code)
-            ->json(['error' => $message])
-            ->send();
+        Response::json([
+            'error' => $message,
+            'status_code' => $status_code
+        ], $status_code);
     }
 }
