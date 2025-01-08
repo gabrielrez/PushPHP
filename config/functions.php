@@ -55,8 +55,3 @@ function getRequestBody(): array|null
 {
     return Request::getRequestBody();
 }
-
-function get_status_code(): int|bool
-{
-    return http_response_code();
-}
