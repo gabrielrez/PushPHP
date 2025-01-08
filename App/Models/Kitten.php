@@ -6,6 +6,15 @@ use Core\Model;
 
 class Kitten extends Model
 {
-    protected $table = 'kittens';
-    protected $allowed_fields = ['name', 'color'];
+    /**
+     * @var string $table The database table associated with the model.
+     */
+    protected string $table = 'kittens';
+
+    /**
+     * @var array $allowed_fields Fields that can be mass-assigned.
+     */
+    protected array $allowed_fields = ['name', 'color'];
+
+    // Add other model-specific methods if needed
 }
