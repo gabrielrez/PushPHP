@@ -13,9 +13,6 @@ class KittensController
     public function index(Request $request, Response $response)
     {
         // All kittens
-        $response::json([
-            'message' => 'Hello World!'
-        ], 200);
     }
 
     public function show(Request $request, Response $response, int $id)
