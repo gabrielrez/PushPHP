@@ -4,91 +4,37 @@ namespace App\Controllers;
 
 use Core\Controller;
 use App\Models\Kitten;
+use App\Services\KittenService;
+use Core\Http\Request;
+use Core\Http\Response;
 
-class KittensController extends Controller
+class KittensController
 {
-    /**
-     * @var Kitten $kitten_model Instance of the Kitten model.
-     */
-    protected Kitten $kitten_model;
-
-    /**
-     * Constructor.
-     * Initializes the Kitten model.
-     */
-    public function __construct()
+    public function index(Request $request, Response $response)
     {
-        $this->kitten_model = new Kitten();
+        // All kittens
+        $response::json([
+            'message' => 'Hello World!'
+        ], 200);
     }
 
-    /**
-     * Retrieves all kittens.
-     *
-     * @return void
-     */
-    public function index()
+    public function show(Request $request, Response $response, int $id)
     {
-        $kittens = $this->kitten_model->all();
-        return $this->respond($kittens, 200);
+        // A especific kitten
     }
 
-    /**
-     * Retrieves a specific kitten by ID.
-     *
-     * @param int $id The ID of the kitten.
-     * @return void
-     */
-    public function show(int $id)
+    public function store(Request $request, Response $response)
     {
-        $kitten = $this->kitten_model->findOrFail($id);
-
-        if (!$kitten) {
-            return $this->respond(['error' => 'Kitten not found'], 404);
-        }
-
-        return $this->respond($kitten, 200);
+        // Create a new kitten
     }
 
-    /**
-     * Stores a new kitten.
-     *
-     * @return void
-     */
-    public function store()
+    public function update(Request $request, Response $response)
     {
-        $this->kitten_model->save($this->getRequestBody());
-        return $this->respond(['success' => 'Kitten created successfully'], 201);
+        // Update a kitten
     }
 
-    /**
-     * Updates an existing kitten by ID.
-     *
-     * @param int $id The ID of the kitten to update.
-     * @return void
-     */
-    public function update(int $id)
+    public function destroy(Request $request, Response $response, int $id)
     {
-        $this->kitten_model->update($id, $this->getRequestBody());
-        return $this->respond(['success' => 'Kitten updated successfully'], 200);
-    }
-
-
-    /**
-     * Deletes a kitten by ID.
-     *
-     * @param int $id The ID of the kitten to delete.
-     * @return void
-     */
-    public function destroy(int $id)
-    {
-        $kitten = $this->kitten_model->findOrFail($id);
-
-        if (!$kitten) {
-            return $this->respond(['error' => 'Kitten not found'], 404);
-        }
-
-        $this->kitten_model->delete($id);
-
-        return $this->respond(['success' => 'Kitten deleted successfully'], 200);
+        // Delete a kitten
     }
 }
