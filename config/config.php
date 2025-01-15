@@ -5,10 +5,10 @@
 return [
     'database' => [
         'host' => 'localhost',
-        'port' => 3306,
         'dbname' => 'PushPHP',
+        'port' => 3306,
+        'charset' => 'utf8mb4',
         'username' => 'root',
-        'password' => '',
-        'charset' => 'utf8mb4'
+        'password' => ''
     ]
 ];
