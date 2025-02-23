@@ -3,6 +3,7 @@
 namespace Core\Database;
 
 use Core\Database\Database;
+use PDO;
 
 abstract class Model extends Database
 {
@@ -34,7 +35,7 @@ abstract class Model extends Database
     public static function all(): array
     {
         $query = "SELECT * FROM `" . static::$table . "`";
-        return static::query($query)->fetchAll();
+        return static::query($query)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -48,7 +49,7 @@ abstract class Model extends Database
     {
         $query = "SELECT * FROM `" . static::$table . "` WHERE id = :id LIMIT 1";
         $stmt = static::query($query, ['id' => $id]);
-        return $stmt->fetch() ?: null;
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
     /**
@@ -118,28 +119,6 @@ abstract class Model extends Database
     }
 
     /**
-     * Get the first record that matches the criteria or fail.
-     *
-     * @param array $criteria
-     * @return array
-     * @throws \Exception
-     */
-    public static function firstOrFail(array $criteria): array
-    {
-        $conditions = implode(" AND ", array_map(fn($col) => "`$col` = :$col", array_keys($criteria)));
-        $query = "SELECT * FROM `" . static::$table . "` WHERE $conditions LIMIT 1";
-
-        $stmt = static::query($query, $criteria);
-        $record = $stmt->fetch();
-
-        if (!$record) {
-            throw new \Exception("Record not found.");
-        }
-
-        return $record;
-    }
-
-    /**
      * Get the first record that matches the criteria.
      *
      * @param array $criteria
@@ -152,7 +131,7 @@ abstract class Model extends Database
         $query = "SELECT * FROM `" . static::$table . "` WHERE $conditions LIMIT 1";
 
         $stmt = static::query($query, $criteria);
-        return $stmt->fetch() ?: null;
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
     /**
@@ -167,6 +146,6 @@ abstract class Model extends Database
         $conditions = implode(" AND ", array_map(fn($col) => "`$col` = :$col", array_keys($criteria)));
         $query = "SELECT * FROM `" . static::$table . "` WHERE $conditions";
 
-        return static::query($query, $criteria)->fetchAll();
+        return static::query($query, $criteria)->fetchAll(PDO::FETCH_ASSOC);
     }
 }

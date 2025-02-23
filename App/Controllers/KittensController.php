@@ -21,6 +21,7 @@ class KittensController
 
         if (!$kitten) {
             return Response::json([
+                'status' => 404,
                 'message' => 'Kitten not found'
             ], 404);
         }
