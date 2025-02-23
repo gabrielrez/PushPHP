@@ -71,7 +71,7 @@ class CLI
     public function start($port)
     {
         $this->printLine("\033[1;32mStarting server on \033[1;34mhttp://localhost:{$port}\033[0m");
-        $command = "php -S localhost:{$port} -t public";
+        $command = "php -S localhost:{$port}";
         exec($command);
     }
 

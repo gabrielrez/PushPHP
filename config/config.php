@@ -4,9 +4,11 @@
 
 return [
     'database' => [
-        'host' => 'localhost',
+        'host' => '127.0.0.1',
+        'dbname' => 'push_db',
+        'username' => 'root',
+        'password' => '',
         'port' => 3306,
-        'dbname' => 'PushPHP',
-        'charset' => 'utf8mb4'
+        'charset' => 'utf8mb4',
     ]
 ];

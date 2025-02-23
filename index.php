@@ -1,6 +1,6 @@
 <?php
 
-require_once '../Core/Push.php';
+require_once 'Core/Push.php';
 
 use Core\Push;
 

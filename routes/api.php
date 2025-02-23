@@ -1,15 +1,16 @@
 <?php
 
-use Core\Router;
+use Core\Http\Router;
 
 /* ~~~ Application Routes 🚦 ~~~  */
 
-Router::get('/', function () {
-    $data = [
-        'title' => 'PushPHP',
-        'message' => 'A minimalist template for creating web applications with PHP',
-        'status_code' => get_status_code() // 200
-    ];
+Router::get('/', 'KittensController::index');
+Router::get('/kittens', 'KittensController::index');
 
-    respond($data);
-});
+Router::get('/kittens/{id}', 'KittensController::show');
+
+Router::post('/kittens', 'KittensController::store');
+
+Router::put('/kittens/{id}', 'KittensController::put');
+
+Router::delete('/kittens/{id}', 'KittensController::delete');

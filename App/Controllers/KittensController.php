@@ -2,57 +2,58 @@
 
 namespace App\Controllers;
 
-use Core\Controller;
 use App\Models\Kitten;
+use Core\Http\Request;
+use Core\Http\Response;
 
-class KittensController extends Controller
+class KittensController
 {
-    protected $kitten_model;
-
-    public function __construct()
-    {
-        $this->kitten_model = new Kitten();
-    }
-
+    //Display a listing of all kittens. 🐱
     public function index()
     {
-        $kittens = $this->kitten_model->all();
-        return $this->respond($kittens, 200);
+        $kittens = Kitten::all();
+        return Response::json($kittens, 200);
     }
 
-    public function show($id)
+    public function show(int $id)
     {
-        $kitten = $this->kitten_model->findOrFail($id);
+        $kitten = Kitten::find($id);
 
         if (!$kitten) {
-            return $this->respond(['error' => 'Kitten not found'], 404);
+            return Response::json([
+                'status' => 404,
+                'message' => 'Kitten not found'
+            ], 404);
         }
 
-        return $this->respond($kitten, 200);
+        return Response::json($kitten, 200);
     }
 
     public function store()
     {
-        $this->kitten_model->save($this->getRequestBody());
-        return $this->respond(['success' => 'Kitten created successfully'], 201);
+        return Response::json([
+            'success' => true,
+            'Kitten' => Kitten::create(Request::getRequestBody())
+        ], 200);
     }
 
-    public function update($id)
+    public function update(int $id)
     {
-        $this->kitten_model->update($id, $this->getRequestBody());
-        return $this->respond(['success' => 'Kitten updated successfully'], 200);
+        Kitten::update($id, Request::getRequestBody());
+
+        return Response::json([
+            'success' => true,
+            'message' => 'Kitten updated successfully'
+        ], 200);
     }
 
-    public function destroy($id)
+    public function delete(int $id)
     {
-        $kitten = $this->kitten_model->findOrFail($id);
+        Kitten::delete($id);
 
-        if (!$kitten) {
-            return $this->respond(['error' => 'Kitten not found'], 404);
-        }
-
-        $this->kitten_model->delete($id);
-
-        return $this->respond(['success' => 'Kitten deleted successfully'], 200);
+        return Response::json([
+            'success' => true,
+            'message' => 'Kitten deleted successfully'
+        ], 200);
     }
 }
