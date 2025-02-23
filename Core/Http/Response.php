@@ -10,7 +10,7 @@ class Response
      * @param array $data
      * @param int $status_code
      */
-    public static function json(array $data = [], int $status_code = 200)
+    public static function json(array $data = [], int $status_code = 200): void
     {
         http_response_code($status_code);
         header("Content-Type: application/json");
@@ -24,7 +24,7 @@ class Response
      * @param string $content
      * @param int $status_code
      */
-    public static function html(string $content, int $status_code = 200)
+    public static function html(string $content, int $status_code = 200): void
     {
         http_response_code($status_code);
         header("Content-Type: text/html");
@@ -38,7 +38,7 @@ class Response
      * @param string $content
      * @param int $status_code
      */
-    public static function text(string $content, int $status_code = 200)
+    public static function text(string $content, int $status_code = 200): void
     {
         http_response_code($status_code);
         header("Content-Type: text/plain");

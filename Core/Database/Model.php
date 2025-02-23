@@ -52,22 +52,6 @@ abstract class Model extends Database
     }
 
     /**
-     * Find a record by its primary key or fail.
-     *
-     * @param int|string $id
-     * @return array
-     * @throws \Exception
-     */
-    public static function findOrFail(int|string $id): array
-    {
-        $record = static::find($id);
-        if (!$record) {
-            throw new \Exception("Record not found.");
-        }
-        return $record;
-    }
-
-    /**
      * Insert a new record into the table.
      *
      * @param array $data

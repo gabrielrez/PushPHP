@@ -17,7 +17,7 @@ abstract class Database
 
     public function __construct()
     {
-        $this->config = require __DIR__ . '/../config/config.php';
+        $this->config = require __DIR__ . '/../../config/config.php';
 
         if (!isset($this->config['database'])) {
             throw new InvalidArgumentException("Database configuration not found.");
@@ -41,20 +41,20 @@ abstract class Database
     protected static function getConn(array $config, ?string $username = null, ?string $password = null): PDO
     {
         if (self::$conn === null) {
-            if (empty($config['host']) || empty($config['dbname'])) {
+            if (empty($config['database']['host']) || empty($config['database']['dbname'])) {
                 throw new InvalidArgumentException("The database configuration must include 'host' and 'dbname'.");
             }
 
             $dsn = sprintf(
                 'mysql:host=%s;dbname=%s;port=%s;charset=%s',
-                $config['host'],
-                $config['dbname'],
-                $config['port'] ?? 3306,
-                $config['charset'] ?? 'utf8mb4'
+                $config['database']['host'],
+                $config['database']['dbname'],
+                $config['database']['port'] ?? 3306,
+                $config['database']['charset'] ?? 'utf8mb4'
             );
 
-            $username = $username ?? $config['username'] ?? 'root';
-            $password = $password ?? $config['password'] ?? '';
+            $username = $username ?? $config['database']['username'] ?? 'root';
+            $password = $password ?? $config['database']['password'] ?? '';
 
             try {
                 self::$conn = new PDO($dsn, $username, $password);
@@ -80,14 +80,12 @@ abstract class Database
      */
     public static function query(string $sql, array $params = []): PDOStatement
     {
-        $conn = self::$conn;
-
-        if (!$conn) {
-            throw new PDOException("No active database connection.");
+        if (!self::$conn) {
+            self::$conn = self::getConn(require __DIR__ . '/../../config/config.php');
         }
 
         try {
-            $stmt = $conn->prepare($sql);
+            $stmt = self::$conn->prepare($sql);
             $stmt->execute($params);
             return $stmt;
         } catch (PDOException $e) {

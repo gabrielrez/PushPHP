@@ -7,14 +7,10 @@ use Core\Http\Response;
 
 class NotFoundController
 {
-    public function index(Request $request, Response $response)
+    public function index()
     {
-        $response::json([
-            'error' => true,
-            'success' => false,
+        return Response::json([
             'message' => '404 Not Found'
         ], 404);
-
-        return;
     }
 }

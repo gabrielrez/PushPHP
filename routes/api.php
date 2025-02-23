@@ -7,10 +7,10 @@ use Core\Http\Router;
 Router::get('/', 'KittensController::index');
 Router::get('/kittens', 'KittensController::index');
 
-Router::get('/kitten/{id}', 'KittensController::show');
+Router::get('/kittens/{id}', 'KittensController::show');
 
-Router::post('/kitten', 'KittensController::store');
+Router::post('/kittens', 'KittensController::store');
 
-Router::put('/kitten/{id}', 'KittensController::put');
+Router::put('/kittens/{id}', 'KittensController::put');
 
-Router::delete('/kitten/{id}', 'KittensController::delete');
+Router::delete('/kittens/{id}', 'KittensController::delete');

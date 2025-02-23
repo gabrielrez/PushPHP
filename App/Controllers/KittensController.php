@@ -2,59 +2,57 @@
 
 namespace App\Controllers;
 
-use Core\Controller;
 use App\Models\Kitten;
-use App\Services\KittenService;
 use Core\Http\Request;
 use Core\Http\Response;
-use Core\Utilities\Validator;
 
 class KittensController
 {
     //Display a listing of all kittens. 🐱
-    public function index(Request $request, Response $response)
+    public function index()
     {
-        $response::json(Kitten::all(), 200);
+        $kittens = Kitten::all();
+        return Response::json($kittens, 200);
     }
 
-    // Display a specific kitten by its ID. 🔍
-    public function show(Request $request, Response $response, int $id)
+    public function show(int $id)
     {
-        $response::json(Kitten::findOrFail($id), 200);
+        $kitten = Kitten::find($id);
+
+        if (!$kitten) {
+            return Response::json([
+                'message' => 'Kitten not found'
+            ], 404);
+        }
+
+        return Response::json($kitten, 200);
     }
 
-    // Store a newly created kitten in the database. 🐾
-    public function store(Request $request, Response $response)
+    public function store()
     {
-        $kitten_id = Kitten::create(Validator::validate($request::getRequestBody()));
-
-        $response::json([
+        return Response::json([
             'success' => true,
-            'message' => 'Kitten created succesfully. 🎉',
-            'kitten' => Kitten::find($kitten_id)
-        ], 201);
-    }
-
-    // Update the specified kitten in the database. ✏️
-    public function update(Request $request, Response $response, int $id)
-    {
-        Kitten::update($id, $request::getRequestBody());
-
-        $response::json([
-            'success' => true,
-            'message' => 'Kitten updated succesfully. 🔄',
-            'kitten' => Kitten::find($id)
+            'Kitten' => Kitten::create(Request::getRequestBody())
         ], 200);
     }
 
-    // Delete the specified kitten from the database. ❌
-    public function destroy(Request $request, Response $response, int $id)
+    public function update(int $id)
+    {
+        Kitten::update($id, Request::getRequestBody());
+
+        return Response::json([
+            'success' => true,
+            'message' => 'Kitten updated successfully'
+        ], 200);
+    }
+
+    public function delete(int $id)
     {
         Kitten::delete($id);
 
-        $response::json([
+        return Response::json([
             'success' => true,
-            'message' => 'Kitten deleted succesfully. 🗑️'
-        ]);
+            'message' => 'Kitten deleted successfully'
+        ], 200);
     }
 }
